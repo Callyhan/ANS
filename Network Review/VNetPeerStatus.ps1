@@ -1,44 +1,47 @@
-# Login to Azure
-Write-Output "Logging into Azure..."
-az login
-Write-Output "Login successful."
+# Prompt user for subscription IDs
+$subscriptionIds = Read-Host -Prompt "Enter one or multiple Subscription IDs (comma-separated)"
 
-# Define the subscriptions you want to check
-$subscriptions = @("Subscription1", "Subscription2")
+# Split input into an array of subscription IDs
+$subscriptions = $subscriptionIds -split ","
 
-# Define the output CSV file
-$outputCsv = "VNetPeersStatus.csv"
+# Initialize an empty array to hold peering details
+$peeringDetails = @()
 
-# Initialize an array to hold the results
-$results = @()
-
-# Loop through each subscription
-foreach ($subscription in $subscriptions) {
-    # Set the current subscription
-    az account set --subscription $subscription
-
-    # Get all VNETs in the current subscription
-    $vnets = az network vnet list --query "[].{Name:name, ResourceGroup:resourceGroup}" -o json | ConvertFrom-Json
-
-    # Loop through each VNET
+# Loop through each subscription ID
+foreach ($subscriptionId in $subscriptions) {
+    $subscriptionId = $subscriptionId.Trim()
+    
+    # Set the subscription context
+    Write-Host "Switching to subscription: $subscriptionId" -ForegroundColor Yellow
+    Set-AzContext -SubscriptionId $subscriptionId
+    
+    # Get all VNets in the subscription
+    $vnets = Get-AzVirtualNetwork
+    
     foreach ($vnet in $vnets) {
-        # Get all peerings for the current VNET
-        $peerings = az network vnet peering list --resource-group $vnet.ResourceGroup --vnet-name $vnet.Name --query "[].{Name:name, Status:peeringState}" -o json | ConvertFrom-Json
-
-        # Loop through each peering and add the result to the array
+        # Get all peerings for the VNet
+        $peerings = Get-AzVirtualNetworkPeering -ResourceGroupName $vnet.ResourceGroupName -VirtualNetworkName $vnet.Name
+        
         foreach ($peering in $peerings) {
-            $results += [pscustomobject]@{
-                Subscription = $subscription
-                VNetName = $vnet.Name
-                ResourceGroup = $vnet.ResourceGroup
-                PeeringName = $peering.Name
-                PeeringStatus = $peering.Status
+            # Add peering details to the array
+            $peeringDetails += [PSCustomObject]@{
+                SubscriptionID   = $subscriptionId
+                ResourceGroup    = $vnet.ResourceGroupName
+                VNetName         = $vnet.Name
+                PeeringName      = $peering.Name
+                PeeringStatus    = $peering.PeeringState
+                RemoteVNetName   = $peering.RemoteVirtualNetwork.Id.Split("/")[-1]
+                RemoteVNetRegion = $peering.RemoteVirtualNetwork.Location
             }
         }
     }
 }
 
-# Export the results to a CSV file
-$results | Export-Csv -Path $outputCsv -NoTypeInformation
+# Define output CSV file name
+$outputFile = "VNetPeeringStatuses.csv"
 
-Write-Output "VNet peers status has been exported to $outputCsv"
+# Export peering details to a CSV file
+Write-Host "Exporting peering details to $outputFile..." -ForegroundColor Green
+$peeringDetails | Export-Csv -Path $outputFile -NoTypeInformation
+
+Write-Host "Done! The VNet peering statuses have been saved to $outputFile" -ForegroundColor Green
