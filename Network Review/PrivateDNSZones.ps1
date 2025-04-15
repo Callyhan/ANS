@@ -1,8 +1,6 @@
-$subscriptions = @(
-    "subscription-id-1",
-    "subscription-id-2",
-    "subscription-id-3"
-)
+# Prompt user for subscription IDs
+$subscriptionInput = Read-Host "Enter subscription IDs (comma-separated)"
+$subscriptions = $subscriptionInput -split ","
 
 # Output CSV file path
 $outputCsv = "PrivateDNSZonesReport.csv"
@@ -12,6 +10,9 @@ $results = @()
 
 # Loop through each subscription
 foreach ($subscriptionId in $subscriptions) {
+    # Trim whitespace from the subscription ID
+    $subscriptionId = $subscriptionId.Trim()
+
     # Set the current subscription context
     Set-AzContext -SubscriptionId $subscriptionId
 
