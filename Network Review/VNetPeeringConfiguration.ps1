@@ -1,5 +1,4 @@
 # Login to Azure
-Update-AzConfig -DefaultSubscriptionForLogin 'XXXX-XXXX-XXXX-XXXX-XXXX'
 
 Connect-AzAccount
 
@@ -38,6 +37,6 @@ foreach ($subscription in $subscriptions) {
 }
 
 # Export results to a CSV file
-$results | Export-Csv -Path "VNetPeeringDetails.csv" -NoTypeInformation
+$results | Export-Csv -Path "VNetPeeringConfig.csv" -NoTypeInformation
 
-Write-Host "Results exported to 'VNetPeeringDetails.csv'."
+Write-Host "Results exported to 'VNetPeeringConfig.csv'."
