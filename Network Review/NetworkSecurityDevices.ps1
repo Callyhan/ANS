@@ -78,6 +78,6 @@ foreach ($subscriptionId in $subscriptionIdsArray) {
 }
 
 # Export results to CSV file
-$output | Export-Csv -Path "AzureResourceCheckResults.csv" -NoTypeInformation -Encoding UTF8
+$output | Export-Csv -Path "NetworkSecurityDevices.csv" -NoTypeInformation -Encoding UTF8
 
-Write-Host "Results exported to AzureResourceCheckResults.csv"
+Write-Host "Results exported to NetworkSecurityDevices.csv"
