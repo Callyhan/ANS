@@ -35,7 +35,7 @@ foreach ($subscriptionId in $subscriptions) {
 }
 
 # Export results to CSV
-$outputCsv = "SubnetsAndRouteTables.csv"
+$outputCsv = "UDRs.csv"
 $results | Export-Csv -Path $outputCsv -NoTypeInformation
 
 Write-Output "CSV file '$outputCsv' created successfully."
