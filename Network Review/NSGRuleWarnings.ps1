@@ -36,6 +36,6 @@ foreach ($subscription in $subscriptions) {
 }
 
 # Export the results to a CSV file
-$results | Export-Csv -Path "NSGRulesWithAnyFixed.csv" -NoTypeInformation
+$results | Export-Csv -Path "PermissiveNSGRules.csv" -NoTypeInformation
 
-Write-Host "Results exported to 'NSGRulesWithAnyFixed.csv'."
+Write-Host "Results exported to 'PermissiveNSGRules.csv'."
